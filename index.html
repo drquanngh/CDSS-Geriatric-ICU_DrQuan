@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICU Geriatrics CDSS - Deep Clinical Integration</title>
-    <!-- Tailwind CSS & Thư viện xuất File chuyên dụng -->
+    <title>ICU Geriatrics CDSS v4.0 - Deep Component Integration</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -12,509 +11,317 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
-        select, input[type="number"], input[type="text"] { min-height: 40px; }
-        .score-badge { font-weight: 900; background-color: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 9999px; font-size: 0.875rem; }
+        input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        select, input[type="number"], input[type="text"] { min-height: 38px; }
+        .score-badge { font-weight: 900; background-color: #e0f2fe; color: #0369a1; padding: 2px 10px; border-radius: 9999px; font-size: 0.85rem; }
+        .section-card { border: 1px border-slate-200; rounded-xl: 12px; padding: 16px; background-color: #f8fafc; margin-bottom: 16px; }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 antialiased pb-12">
 
     <div class="max-w-4xl mx-auto px-2 sm:px-4 py-4">
-        <!-- HEADER -->
-        <div class="bg-gradient-to-r from-blue-900 to-indigo-950 text-white p-4 rounded-t-2xl shadow-lg">
-            <h1 class="text-xl sm:text-2xl font-black uppercase text-center tracking-tight">ICU Geriatrics Assistant v3.0</h1>
-            <p class="text-xs text-center text-blue-200 mt-1">Hệ thống Tính điểm Tự động từ Chỉ số Thô & Đồng bộ Trường trùng lặp</p>
+        <div class="bg-gradient-to-r from-slate-900 to-blue-950 text-white p-4 rounded-t-2xl shadow-lg">
+            <h1 class="text-xl sm:text-2xl font-black uppercase text-center tracking-tight">ICU Geriatrics CDSS v4.0</h1>
+            <p class="text-xs text-center text-blue-200 mt-1">Bóc Tách Chi Tiết Biến Số Thô Toàn Hệ Thống & Tích Hợp NEWS2</p>
         </div>
 
-        <!-- NAVIGATION TABS -->
-        <div class="bg-white shadow-md flex border-b border-slate-200 sticky top-0 z-50 overflow-x-auto text-sm font-bold">
+        <div class="bg-white shadow-md flex border-b border-slate-200 sticky top-0 z-50 overflow-x-auto text-xs font-bold">
             <button onclick="switchTab('tab-patient')" id="btn-tab-patient" class="tab-btn flex-1 min-w-[100px] py-3 text-center border-b-4 border-blue-700 text-blue-700">1. BN & Sinh Tồn</button>
-            <button onclick="switchTab('tab-cfs')" id="btn-tab-cfs" class="tab-btn flex-1 min-w-[100px] py-3 text-center border-b-4 border-transparent text-slate-500">2. Cây CFS</button>
-            <button onclick="switchTab('tab-lab')" id="btn-tab-lab" class="tab-btn flex-1 min-w-[100px] py-3 text-center border-b-4 border-transparent text-slate-500">3. Xét Nghiệm</button>
-            <button onclick="switchTab('tab-scales')" id="btn-tab-scales" class="tab-btn flex-1 min-w-[120px] py-3 text-center border-b-4 border-transparent text-slate-500">4. Thang Lão Khoa</button>
-            <button onclick="switchTab('tab-report')" id="btn-tab-report" class="tab-btn flex-1 min-w-[100px] py-3 text-center border-b-4 border-transparent text-slate-500">5. Kết xuất</button>
+            <button onclick="switchTab('tab-cfs')" id="btn-tab-cfs" class="tab-btn flex-1 min-w-[90px] py-3 text-center border-b-4 border-transparent text-slate-500">2. Cây CFS</button>
+            <button onclick="switchTab('tab-icu')" id="btn-tab-icu" class="tab-btn flex-1 min-w-[120px] py-3 text-center border-b-4 border-transparent text-slate-500">3. Phân Hệ ICU</button>
+            <button onclick="switchTab('tab-geriatric')" id="btn-tab-geriatric" class="tab-btn flex-1 min-w-[120px] py-3 text-center border-b-4 border-transparent text-slate-500">4. Phân Hệ Lão Khoa</button>
+            <button onclick="switchTab('tab-report')" id="btn-tab-report" class="tab-btn flex-1 min-w-[90px] py-3 text-center border-b-4 border-transparent text-slate-500">5. Kết xuất</button>
         </div>
 
         <div class="bg-white p-4 sm:p-6 rounded-b-2xl shadow-md mt-0.5 space-y-6">
             
-            <!-- ================= TAB 1: BN & LÂM SÀNG/SINH TỒN (ĐỒNG BỘ GỐC) ================= -->
             <div id="tab-patient" class="tab-content active space-y-4">
-                <h3 class="text-md font-bold uppercase text-blue-900 border-b pb-1">Thông tin Hành chính & Dấu hiệu Sinh tồn nền</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <h3 class="text-sm font-bold uppercase text-blue-900 border-b pb-1">Thông tin Hành chính & Phân loại vào viện</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Mã BN / Mã Nghiên cứu:</label>
+                        <label class="block font-bold text-slate-500 mb-1">Mã Bệnh Nhân / Mã NC:</label>
                         <input type="text" id="p-id" placeholder="BN_001" class="w-full border rounded-lg p-2">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Họ và tên:</label>
+                        <label class="block font-bold text-slate-500 mb-1">Họ và tên:</label>
                         <input type="text" id="p-name" placeholder="Nguyễn Văn A" class="w-full border rounded-lg p-2">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Tuổi (Tự động tính điểm CCI/APACHE):</label>
-                        <input type="number" id="p-age" value="80" onchange="syncData('p-age')" class="w-full border rounded-lg p-2 font-bold text-blue-800">
+                        <label class="block font-bold text-slate-500 mb-1">Tuổi (Liên thông thuật toán):</label>
+                        <input type="number" id="p-age" value="80" onchange="syncCalculations()" class="w-full border rounded-lg p-2 font-bold text-blue-800">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Giới tính:</label>
+                        <label class="block font-bold text-slate-500 mb-1">Giới tính:</label>
                         <select id="p-gender" class="w-full border rounded-lg p-2">
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Thang điểm mê sảng CAM:</label>
-                        <select id="p-cam" class="w-full border rounded-lg p-2">
-                            <option value="Âm tính (-)">Âm tính (-) Không mê sảng</option>
-                            <option value="Dương tính (+)">Dương tính (+) Có mê sảng</option>
+                        <label class="block font-bold text-slate-500 mb-1">Loại hình nhập viện (APACHE):</label>
+                        <select id="p-admit-type" onchange="syncCalculations()" class="w-full border rounded-lg p-2">
+                            <option value="medical">Nội khoa (Không phẫu thuật)</option>
+                            <option value="emergency-op">Phẫu thuật cấp cứu</option>
+                            <option value="elective-op">Phẫu thuật chương trình (Có kế hoạch)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Thang Đau VAS (0 - 10):</label>
-                        <input type="number" id="p-vas" value="0" min="0" max="10" class="w-full border rounded-lg p-2">
-                    </div>
-                </div>
-
-                <h3 class="text-md font-bold uppercase text-blue-900 border-b pb-1 pt-2">Lâm sàng & Sinh tồn tại ICU (Dùng chung cho SOFA / APACHE II)</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Nhiệt độ trung tâm (°C):</label>
-                        <input type="number" id="v-temp" value="37" step="0.1" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Huyết áp tâm thu (mmHg):</label>
-                        <input type="number" id="v-sbp" value="120" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Huyết áp trung bình - MAP (mmHg):</label>
-                        <input type="number" id="v-map" value="85" onchange="syncData('v-map')" class="w-full border rounded-lg p-2 font-bold text-indigo-800">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Tần số tim (Chu kỳ/phút):</label>
-                        <input type="number" id="v-hr" value="80" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Tần số thở (Lần/phút):</label>
-                        <input type="number" id="v-rr" value="18" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Điểm hôn mê Glasgow - GCS:</label>
-                        <input type="number" id="v-gcs" value="15" min="3" max="15" onchange="syncData('v-gcs')" class="w-full border rounded-lg p-2 font-bold text-indigo-800">
-                    </div>
-                    <div class="sm:col-span-3">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Hỗ trợ vận mạch (Tính điểm SOFA):</label>
-                        <select id="v-vasopressor" class="w-full border rounded-lg p-2">
-                            <option value="none">Không dùng vận mạch / MAP &ge; 70 mmHg</option>
-                            <option value="map65">MAP &lt; 70 mmHg kéo dài</option>
-                            <option value="dopa5">Dopamine &le; 5 mcg/kg/phút hoặc Dobutamine liều bất kỳ</option>
-                            <option value="nor01">Noradrenaline / Adrenaline &le; 0.1 mcg/kg/phút hoặc Dopamine &gt; 5</option>
-                            <option value="nor_high">Noradrenaline / Adrenaline &gt; 0.1 mcg/kg/phút hoặc Dopamine &gt; 15</option>
+                        <label class="block font-bold text-slate-500 mb-1">Suy tạng mạn tính nền (APACHE II):</label>
+                        <select id="l-chronic" onchange="syncCalculations()" class="w-full border rounded-lg p-2">
+                            <option value="0">Không có suy tạng mạn tính nặng</option>
+                            <option value="5">Có suy tạng mạn tính nặng (Nội khoa/Mổ cấp cứu)</option>
+                            <option value="2">Có suy tạng mạn tính nặng (Mổ chương trình)</option>
                         </select>
                     </div>
                 </div>
                 <div class="pt-4 flex justify-end">
-                    <button onclick="switchTab('tab-cfs')" class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Tiếp tục sang Cây CFS ➔</button>
+                    <button onclick="switchTab('tab-cfs')" class="px-6 py-2.5 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Tiếp tục ➔</button>
                 </div>
             </div>
 
-            <!-- ================= TAB 2: CÂY LOGIC CFS ================= -->
             <div id="tab-cfs" class="tab-content space-y-4">
                 <div id="cfs-tree-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200"></div>
                 <div class="flex justify-between items-center pt-2">
                     <button id="cfs-back" onclick="cfsGoBack()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hidden">⬅ Quay lại</button>
-                    <button onclick="switchTab('tab-lab')" class="ml-auto px-6 py-3 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Sang phần Xét Nghiệm ➔</button>
+                    <button onclick="switchTab('tab-icu'); syncCalculations();" class="ml-auto px-6 py-2.5 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Sang Phân Hệ ICU ➔</button>
                 </div>
             </div>
 
-            <!-- ================= TAB 3: XÉT NGHIỆM CHI TIẾT (SOFA & APACHE II) ================= -->
-            <div id="tab-lab" class="tab-content space-y-6">
-                <h3 class="text-md font-bold uppercase text-blue-900 border-b pb-1">Cận lâm sàng & Khí máu (Nhập liệu một lần cho đa hệ thống)</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Chỉ số PaO2 / FiO2 (mmHg):</label>
-                        <input type="number" id="l-pf" value="420" onchange="syncData('l-pf')" class="w-full border rounded-lg p-2 font-bold text-teal-800">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Bệnh nhân có đang thở máy không?</label>
-                        <select id="l-vent" class="w-full border rounded-lg p-2">
-                            <option value="no">Không thở máy</option>
-                            <option value="yes">Có thở máy hỗ trợ</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Creatinine huyết thanh (umol/L):</label>
-                        <input type="number" id="l-creat" value="80" onchange="syncData('l-creat')" class="w-full border rounded-lg p-2 font-bold text-teal-800">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Tiểu cầu - Platelets ($10^9$/L):</label>
-                        <input type="number" id="l-plt" value="250" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Bilirubin toàn phần (umol/L):</label>
-                        <input type="number" id="l-bili" value="15" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">pH động mạch:</label>
-                        <input type="number" id="l-ph" value="7.4" step="0.01" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Natri huyết thanh (mmol/L):</label>
-                        <input type="number" id="l-na" value="140" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Kali huyết thanh (mmol/L):</label>
-                        <input type="number" id="l-k" value="4.0" step="0.1" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Hematocrit (%):</label>
-                        <input type="number" id="l-hct" value="40" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Bạch cầu - WBC ($10^9$/L):</label>
-                        <input type="number" id="l-wbc" value="7.5" step="0.1" class="w-full border rounded-lg p-2">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-bold text-slate-500 mb-1">Tình trạng suy chức năng tạng mạn tính (APACHE II):</label>
-                        <select id="l-chronic" class="w-full border rounded-lg p-2">
-                            <option value="0">Không có suy tạng mạn tính</option>
-                            <option value="5">Suy tạng nặng nhập viện không mổ / mổ cấp cứu (+5đ)</option>
-                            <option value="2">Suy tạng nặng nhập viện sau mổ chương trình (+2đ)</option>
-                        </select>
+            <div id="tab-icu" class="tab-content space-y-6">
+                <div class="p-3 bg-sky-50 border border-sky-200 rounded-xl flex flex-wrap gap-3 justify-around font-bold text-xs">
+                    <div>NEWS2: <span id="lbl-news2" class="score-badge">0đ</span></div>
+                    <div>SOFA: <span id="lbl-sofa" class="score-badge">0đ</span></div>
+                    <div>APACHE II: <span id="lbl-apache2" class="score-badge">0đ</span></div>
+                    <div>APACHE IV (Lâm sàng): <span id="lbl-apache4" class="score-badge">0đ</span></div>
+                </div>
+
+                <div class="section-card space-y-3">
+                    <h4 class="font-bold text-blue-900 text-xs uppercase border-b pb-1">A. Dấu hiệu Sinh tồn & Khí máu sinh học</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Nhiệt độ cơ thể (°C):</label>
+                            <input type="number" id="v-temp" value="37.0" step="0.1" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Huyết áp tâm thu (mmHg):</label>
+                            <input type="number" id="v-sbp" value="120" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Huyết áp trung bình - MAP (mmHg):</label>
+                            <input type="number" id="v-map" value="85" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Tần số tim (nhịp/phút):</label>
+                            <input type="number" id="v-hr" value="85" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Tần số thở (lần/phút):</label>
+                            <input type="number" id="v-rr" value="18" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Điểm Glasgow (GCS thô 3-15):</label>
+                            <input type="number" id="v-gcs" value="15" min="3" max="15" onchange="syncCalculations()" class="w-full border rounded p-1.5 font-bold text-blue-800">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Độ bão hòa Oxy SpO2 (%):</label>
+                            <input type="number" id="v-spo2" value="98" min="0" max="100" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Thang Oxy hỗ trợ (NEWS2):</label>
+                            <select id="v-news-scale" onchange="syncCalculations()" class="w-full border bg-white rounded p-1.5">
+                                <option value="1">Thang 1: Khí trời hoặc Bệnh nhân thông thường</option>
+                                <option value="2">Thang 2: Đang thở Oxy đích liệu pháp (COPD - Đích 88-92%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Đang truyền Oxy/Hỗ trợ thở?</label>
+                            <select id="v-oxy-support" onchange="syncCalculations()" class="w-full border bg-white rounded p-1.5">
+                                <option value="no">Không (Khí phòng)</option>
+                                <option value="yes">Có hỗ trợ (Oxy kính, Mask, Máy thở)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Hỗ trợ vận mạch (SOFA):</label>
+                            <select id="v-vaso" onchange="syncCalculations()" class="w-full border bg-white rounded p-1.5">
+                                <option value="0">Không dùng vận mạch</option>
+                                <option value="1">MAP &lt; 70 mmHg kéo dài</option>
+                                <option value="2">Dopamine &le; 5 hoặc Dobutamine</option>
+                                <option value="3">Noradrenaline / Adrenaline &le; 0.1 mcg/kg/phút</option>
+                                <option value="4">Noradrenaline / Adrenaline &gt; 0.1 mcg/kg/phút</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Chỉ số PaO2 / FiO2 (mmHg):</label>
+                            <input type="number" id="l-pf" value="410" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Thể tích nước tiểu (mL/24h):</label>
+                            <input type="number" id="l-urine" value="1500" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
                     </div>
                 </div>
 
-                <!-- KHỐI TỰ ĐỘNG HIỂN THỊ ĐIỂM SỐ TIÊN LƯỢNG NẶNG ICU -->
-                <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl flex flex-wrap gap-4 justify-around font-bold text-sm">
-                    <div>📊 Điểm SOFA tính toán: <span id="sofa-badge" class="score-badge">0đ</span></div>
-                    <div>📊 Điểm APACHE II dự kiến: <span id="apache2-badge" class="score-badge">0đ</span></div>
+                <div class="section-card space-y-3">
+                    <h4 class="font-bold text-blue-900 text-xs uppercase border-b pb-1">B. Chỉ số Xét nghiệm Cận lâm sàng thô</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Creatinine huyết thanh (umol/L):</label>
+                            <input type="number" id="l-creat" value="85" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Tiểu cầu - Platelets ($10^9$/L):</label>
+                            <input type="number" id="l-plt" value="220" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Bilirubin toàn phần (umol/L):</label>
+                            <input type="number" id="l-bili" value="14" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">pH động mạch:</label>
+                            <input type="number" id="l-ph" value="7.40" step="0.01" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Natri huyết thanh (mmol/L):</label>
+                            <input type="number" id="l-na" value="140" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Kali huyết thanh (mmol/L):</label>
+                            <input type="number" id="l-k" value="4.1" step="0.1" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Hematocrit (%):</label>
+                            <input type="number" id="l-hct" value="41" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Bạch cầu - WBC ($10^9$/L):</label>
+                            <input type="number" id="l-wbc" value="7.2" step="0.1" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">BUN (Máu - mmol/L):</label>
+                            <input type="number" id="l-bun" value="5.0" step="0.1" onchange="syncCalculations()" class="w-full border rounded p-1.5">
+                        </div>
+                    </div>
                 </div>
-
                 <div class="pt-2 flex justify-end">
-                    <button onclick="switchTab('tab-scales'); executeCalculations();" class="px-6 py-3 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Sang phân hệ Thang Lão Khoa ➔</button>
+                    <button onclick="switchTab('tab-geriatric'); syncCalculations();" class="px-6 py-2.5 bg-blue-700 text-white font-bold rounded-xl cursor-pointer">Sang Phân Hệ Lão Khoa ➔</button>
                 </div>
             </div>
 
-            <!-- ================= TAB 4: PHÂN HỆ LÃO KHOA & ĐỒNG MẮC CHI TIẾT ================= -->
-            <div id="tab-scales" class="tab-content space-y-6">
-                <!-- CHARLSON COMORBIDITY INDEX (CCI) CHI TIẾT -->
-                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
-                    <div class="flex justify-between items-center border-b pb-1">
-                        <h4 class="font-bold text-blue-900 text-md">1. Chỉ số bệnh đồng mắc Charlson (CCI)</h4>
-                        <span class="text-sm font-black text-blue-700">Điểm CCI gốc: <span id="cci-age-badge">0</span>đ (Đã cộng tuổi)</span>
+            <div id="tab-geriatric" class="tab-content space-y-6">
+                <div class="section-card space-y-4">
+                    <h4 class="font-bold text-indigo-900 text-xs uppercase border-b pb-1">A. Đánh giá Chức năng Nhận thức & Tâm thần thô</h4>
+                    
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <span class="font-bold text-blue-800">1. Tiêu chí chi tiết MMSE (Mini-Mental State Examination)</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>Orientation (Định hướng không gian/thời gian 0-10): <input type="number" id="m-mmse-ori" value="10" min="0" max="10" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Registration (Ghi nhớ tức thời 3 từ 0-3): <input type="number" id="m-mmse-reg" value="3" min="0" max="3" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Attention & Calculation (Chú ý & Tính toán 0-5): <input type="number" id="m-mmse-att" value="5" min="0" max="5" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Recall (Gợi nhớ lại 3 từ 0-3): <input type="number" id="m-mmse-rec" value="3" min="0" max="3" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Language & Praxis (Ngôn ngữ & Thực hành lệnh 0-9): <input type="number" id="m-mmse-lang" value="9" min="0" max="9" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div class="bg-blue-50 p-2 rounded flex items-center justify-center font-black text-blue-700">Tổng MMSE: <span id="lbl-mmse-sum" class="ml-1">30</span>/30đ</div>
+                        </div>
                     </div>
-                    <div class="text-xs text-slate-600 mb-2 font-medium">Tích chọn các bệnh lý nền bệnh nhân đang mắc phải:</div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold">
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Nhồi máu cơ tim tiền sử (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Suy tim ứ huyết (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Bệnh động mạch ngoại biên (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Tai biến mạch máu não/TIA (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Sa sút trí tuệ (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Bệnh phổi mạn tính (COPD/Hen) (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Viêm loét dạ dày tá tràng (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Bệnh gan nhẹ (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1"> Đái tháo đường không biến chứng tạng (+1)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2"> Đái tháo đường có tổn thương tạng đích (+2)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2"> Liệt nửa người hoặc liệt tứ chi (+2)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2"> Bệnh thận mạn tính vừa - nặng (+2)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2"> U đặc ác tính đơn thuần (+2)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="3"> Bệnh gan nặng/Xơ gan tăng áp cửa (+3)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="6"> U đặc ác tính di căn xa (+6)</label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="6"> Nhiễm HIV/AIDS lâm sàng (+6)</label>
+
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <span class="font-bold text-blue-800">2. Tiêu chí chi tiết MoCA (Montreal Cognitive Assessment)</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <div>Visuospatial (Thị giác không gian 0-5): <input type="number" id="m-moca-vis" value="5" min="0" max="5" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Naming (Gọi tên con vật 0-3): <input type="number" id="m-moca-nam" value="3" min="0" max="3" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Attention (Sự chú ý chuỗi số 0-6): <input type="number" id="m-moca-att" value="6" min="0" max="6" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Language (Lặp lại câu/Trôi chảy 0-3): <input type="number" id="m-moca-lang" value="3" min="0" max="3" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Abstraction (Tìm điểm giống nhau 0-2): <input type="number" id="m-moca-abs" value="2" min="0" max="2" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Delayed Recall (Nhớ lại sau trì hoãn 0-5): <input type="number" id="m-moca-rec" value="5" min="0" max="5" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Orientation (Định hướng thời gian/nơi chốn 0-6): <input type="number" id="m-moca-ori" value="6" min="0" max="6" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div class="bg-indigo-50 p-2 rounded flex items-center justify-center font-black text-indigo-700">Tổng MoCA: <span id="lbl-moca-sum" class="ml-1">30</span>/30đ</div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <span class="font-bold text-blue-800">3. Tiêu chí chi tiết Mini-COG</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>Gợi nhớ lại 3 từ (0-3 điểm): <input type="number" id="m-cog-words" value="3" min="0" max="3" onchange="sumCognitive()" class="w-full border rounded p-1 text-center font-bold"></div>
+                            <div>Vẽ mặt đồng hồ (0 hoặc 2 điểm): <select id="m-cog-clock" onchange="sumCognitive()" class="w-full border bg-white rounded p-1 font-bold"><option value="2">Bình thường (2đ)</option><option value="0">Bất thường (0đ)</option></select></div>
+                            <div class="bg-teal-50 p-2 rounded flex items-center justify-center font-black text-teal-700">Tổng Mini-COG: <span id="lbl-minicog-sum" class="ml-1">5</span>/5đ</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- THANG ĐIỂM CHỨC NĂNG BARTHEL INDEX CHI TIẾT -->
-                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+                <div class="section-card space-y-3">
                     <div class="flex justify-between items-center border-b pb-1">
-                        <h4 class="font-bold text-blue-900 text-md">2. Chỉ số Độc lập sinh hoạt Barthel & Thang điểm ADL (Katz)</h4>
-                        <span class="text-xs font-black text-blue-700">Barthel Index: <span id="barthel-badge">100</span>/100đ | ADL: <span id="adl-badge">6</span>/6đ</span>
+                        <h4 class="font-bold text-indigo-900 text-xs uppercase">B. Khảo sát Chức năng Độc lập Barthel & ADL</h4>
+                        <span class="text-xs font-black text-indigo-700">Barthel: <span id="lbl-barthel" class="score-badge">100đ</span> | ADL: <span id="lbl-adl" class="score-badge">6đ</span></span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Ăn uống (Đồng bộ sang ADL):</label>
-                            <select id="b-eat" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="10">Tự chủ hoàn toàn (10đ)</option>
-                                <option value="5">Cần hỗ trợ một phần cắt thức ăn/gắp (5đ)</option>
-                                <option value="0">Phụ thuộc hoàn toàn (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Tắm rửa (Đồng bộ sang ADL & Cây CFS):</label>
-                            <select id="b-bath" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="5">Tự tắm độc lập (5đ)</option>
-                                <option value="0">Cần trợ giúp hoặc phụ thuộc (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Chải chuốt cá nhân (Cạo râu, đánh răng, tóc):</label>
-                            <select id="b-groom" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="5">Tự làm độc lập (5đ)</option>
-                                <option value="0">Cần trợ giúp (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Mặc quần áo (Đồng bộ sang ADL):</label>
-                            <select id="b-dress" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="10">Tự mặc, thắt dây, cài cúc độc lập (10đ)</option>
-                                <option value="5">Cần trợ giúp một nửa thao tác (5đ)</option>
-                                <option value="0">Phụ thuộc hoàn toàn (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Kiểm soát đại tiện:</label>
-                            <select id="b-bowel" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="10">Tự chủ hoàn toàn, không tai nạn (10đ)</option>
-                                <option value="5">Đôi khi thụt tháo hoặc rò rỉ (5đ)</option>
-                                <option value="0">Mất tự chủ hoàn toàn (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Kiểm soát tiểu tiện (Đồng bộ sang ADL):</label>
-                            <select id="b-bladder" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="10">Tự chủ hoàn toàn hoặc tự quản ống thông (10đ)</option>
-                                <option value="5">Đôi khi rò rỉ hoặc tai nạn nhỏ (5đ)</option>
-                                <option value="0">Mất tự chủ hoàn toàn / Đóng bỉm phụ thuộc (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Di chuyển từ giường sang ghế:</label>
-                            <select id="b-transfer" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="15">Tự chuyển vị trí độc lập hoàn toàn (15đ)</option>
-                                <option value="10">Cần hỗ trợ lực tối thiểu / Người nhắc (10đ)</option>
-                                <option value="5">Có thể ngồi dậy nhưng cần lực đỡ lớn (5đ)</option>
-                                <option value="0">Bất động hoàn toàn tại giường (0đ)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-600 mb-0.5">Di chuyển đi bộ (Đồng bộ sang ADL & Cây CFS):</label>
-                            <select id="b-walk" onchange="executeCalculations()" class="w-full border bg-white rounded p-1">
-                                <option value="15">Tự đi lại độc lập &gt; 50m (Có thể dùng gậy) (15đ)</option>
-                                <option value="10">Cần người hỗ trợ dắt đi hoặc giám sát &gt; 50m (10đ)</option>
-                                <option value="5">Tự đẩy xe lăn độc lập di chuyển (5đ)</option>
-                                <option value="0">Bất động hoàn toàn (0đ)</option>
-                            </select>
-                        </div>
+                        <div>Ăn uống: <select id="b-eat" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="10">Độc lập hoàn toàn (10đ)</option><option value="5">Cần hỗ trợ ít (5đ)</option><option value="0">Phụ thuộc (0đ)</option></select></div>
+                        <div>Tắm rửa (Liên thông CFS): <select id="b-bath" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="5">Tự tắm độc lập (5đ)</option><option value="0">Phụ thuộc / Cần hỗ trợ (0đ)</option></select></div>
+                        <div>Chải chuốt cá nhân: <select id="b-groom" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="5">Tự làm độc lập (5đ)</option><option value="0">Cần trợ giúp (0đ)</option></select></div>
+                        <div>Mặc quần áo: <select id="b-dress" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="10">Tự mặc hoàn toàn (10đ)</option><option value="5">Cần trợ giúp một phần (5đ)</option><option value="0">Phụ thuộc (0đ)</option></select></div>
+                        <div>Kiểm soát đại tiện: <select id="b-bowel" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="10">Tự chủ hoàn toàn (10đ)</option><option value="5">Đôi khi không tự chủ (5đ)</option><option value="0">Mất tự chủ hoàn toàn (0đ)</option></select></div>
+                        <div>Kiểm soát tiểu tiện: <select id="b-bladder" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="10">Tự chủ / Quản lý sonde tốt (10đ)</option><option value="5">Đôi khi rò rỉ (5đ)</option><option value="0">Đóng bỉm hoàn toàn (0đ)</option></select></div>
+                        <div>Di chuyển giường-ghế: <select id="b-transfer" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="15">Tự di chuyển độc lập (15đ)</option><option value="10">Cần hỗ trợ tối thiểu (10đ)</option><option value="5">Cần lực đỡ lớn (5đ)</option><option value="0">Bất động (0đ)</option></select></div>
+                        <div>Đi bộ trên mặt phẳng: <select id="b-walk" onchange="syncCalculations()" class="w-full border bg-white rounded p-1"><option value="15">Đi bộ độc lập &gt;50m (15đ)</option><option value="10">Cần người giám sát/dắt đi (10đ)</option><option value="5">Tự đẩy xe lăn di chuyển (5đ)</option><option value="0">Bất động hoàn toàn (0đ)</option></select></div>
                     </div>
                 </div>
 
-                <!-- PHÂN HỆ KHẢO SÁT CHỨC NĂNG NHẬN THỨC NÂNG CAO (MMSE, MoCA, Mini-COG) -->
-                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-4">
-                    <h4 class="font-bold text-blue-900 text-md border-b pb-1">3. Khảo sát Chức năng Nhận thức chi tiết (Cognitive Screen)</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold">
-                        <div>
-                            <label class="block text-slate-600 mb-1">MMSE (Nhập tổng điểm chi tiết 0-30):</label>
-                            <input type="number" id="sc-mmse" value="30" min="0" max="30" class="w-full border bg-white rounded-lg p-1.5 text-center">
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 mb-1">MoCA (Nhập tổng điểm chi tiết 0-30):</label>
-                            <input type="number" id="sc-moca" value="30" min="0" max="30" class="w-full border bg-white rounded-lg p-1.5 text-center">
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 mb-1">Mini-COG (Nhập điểm vẽ đồng hồ + nhớ từ 0-5):</label>
-                            <input type="number" id="sc-minicog" value="5" min="0" max="5" class="w-full border bg-white rounded-lg p-1.5 text-center">
-                        </div>
+                <div class="section-card space-y-3">
+                    <h4 class="font-bold text-indigo-900 text-xs uppercase border-b pb-1">C. Danh mục bệnh lý nền tính Chỉ số Charlson (CCI)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] font-semibold">
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Nhồi máu cơ tim tiền sử (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Suy tim ứ huyết (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Bệnh động mạch ngoại biên (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Tai biến mạch máu não/TIA (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Sa sút trí tuệ mạn tính (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Bệnh phổi mạn tính (COPD) (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Viêm loét dạ dày (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Bệnh gan nhẹ (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="1" onchange="syncCalculations()"> Đái tháo đường thông thường (+1)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2" onchange="syncCalculations()"> Đái tháo đường biến chứng tạng (+2)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2" onchange="syncCalculations()"> Liệt nửa người / liệt tứ chi (+2)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2" onchange="syncCalculations()"> Bệnh thận mạn tính nặng (+2)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="2" onchange="syncCalculations()"> U đặc ác tính khu trú (+2)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="3" onchange="syncCalculations()"> Xơ gan/Bệnh gan nặng tăng áp cửa (+3)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="6" onchange="syncCalculations()"> Ung thư đặc di căn xa (+6)</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="cci-chk" value="6" onchange="syncCalculations()"> Nhiễm HIV/AIDS (+6)</label>
                     </div>
                 </div>
 
                 <div class="pt-2 flex justify-end">
-                    <button onclick="switchTab('tab-report')" class="px-8 py-3.5 bg-emerald-600 text-white font-bold text-md rounded-xl shadow-md hover:bg-emerald-700 cursor-pointer">⚡ Tổng hợp kết quả Kết xuất ➔</button>
+                    <button onclick="switchTab('tab-report')" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl cursor-pointer">⚡ Chuyển tới Kết xuất ➔</button>
                 </div>
             </div>
 
-            <!-- ================= TAB 5: BÁO CÁO VÀ KẾT XUẤT DATA ================= -->
-            <div id="tab-report" class="tab-content space-y-6">
-                <div class="space-y-2">
+            <div id="tab-report" class="tab-content space-y-4">
+                <div class="space-y-1">
                     <div class="flex justify-between items-center">
-                        <label class="block text-sm font-bold text-slate-700">📋 Đoạn văn bản tóm tắt cấu trúc EMR (Sao chép nhanh vào bệnh án):</label>
-                        <button onclick="copyToClipboard()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold hover:bg-blue-200">Copy văn bản</button>
+                        <label class="block text-xs font-bold text-slate-700">📋 Báo cáo cấu trúc hóa thông minh dành cho Bệnh án điện tử (EMR):</label>
+                        <button onclick="copyToClipboard()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">Copy Văn Bản</button>
                     </div>
-                    <textarea id="emr-summary" rows="7" class="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 font-mono text-xs leading-relaxed text-slate-900"></textarea>
+                    <textarea id="emr-summary" rows="8" class="w-full border border-slate-300 rounded-xl p-3 bg-slate-50 font-mono text-xs leading-relaxed text-slate-900"></textarea>
                 </div>
-
-                <div id="clinical-alerts" class="p-4 rounded-xl space-y-2"></div>
+                <div id="clinical-alerts" class="space-y-1.5"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-200">
-                    <button onclick="exportToExcel()" class="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-700 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-800 transition-all cursor-pointer">
-                        📊 Xuất dữ liệu nghiên cứu sang EXCEL (.xlsx)
-                    </button>
-                    <button onclick="exportToPDF()" class="flex items-center justify-center gap-2 px-6 py-4 bg-red-700 text-white font-bold rounded-xl shadow-lg hover:bg-red-800 transition-all cursor-pointer">
-                        📄 Xuất file báo cáo y khoa dạng nhãn PDF
-                    </button>
+                    <button onclick="exportToExcel()" class="px-6 py-3.5 bg-emerald-700 text-white font-bold rounded-xl shadow cursor-pointer">📊 Xuất dữ liệu Nghiên cứu (.XLSX)</button>
+                    <button onclick="exportToPDF()" class="px-6 py-3.5 bg-red-700 text-white font-bold rounded-xl shadow cursor-pointer">📄 Tải Báo cáo Y khoa PDF</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PRINT PDF HIDDEN TEMPLATE -->
-    <div id="pdf-template" class="hidden p-8 bg-white text-black text-xs space-y-6" style="width: 210mm;">
-        <div class="text-center border-b pb-3">
-            <h2 class="text-lg font-bold uppercase">BỆNH VIỆN LÃO KHOA TRUNG ƯƠNG</h2>
-            <h3 class="text-sm font-semibold text-gray-650">KHOA HỒI SỨC TÍCH CỰC (ICU)</h3>
-            <p class="text-[10px] text-gray-500 mt-0.5">Báo cáo tóm tắt thang điểm lâm sàng - CDSS Machine Generated</p>
+    <div id="pdf-template" class="hidden p-8 bg-white text-black text-xs space-y-4" style="width: 210mm;">
+        <div class="text-center border-b pb-2">
+            <h2 class="text-md font-bold uppercase">BỆNH VIỆN LÃO KHOA TRUNG ƯƠNG</h2>
+            <h3 class="text-xs font-semibold text-gray-600">KHOA HỒI SỨC TÍCH CỰC (ICU)</h3>
+            <p class="text-[9px] text-gray-400">Hệ thống phân tích hỗ trợ ra quyết định lâm sàng CDSS Geriatrics</p>
         </div>
-        <div id="pdf-content" class="space-y-4"></div>
+        <div id="pdf-content" class="space-y-3 font-mono"></div>
     </div>
 
-    <!-- CORE LOGIC ENGINE & CROSS-LINKING DATA ALGORITHM -->
     <script>
-        let cfsHistory = [];
-        let cfsCurrent = 'start';
-        let calculatedCFS = null;
-        
-        let sofaScore = 0;
-        let apache2Score = 0;
-        let cciScore = 0;
-        let barthelScore = 100;
-        let adlScore = 6;
-
-        // THUẬT TOÁN ĐỒNG BỘ TRƯỜNG DỮ LIỆU TRÙNG LẶP (CROSS-LINKING ENGINE)
-        function syncData(triggerId) {
-            if (triggerId === 'p-age') {
-                calcCCI(); // Tự động cập nhật điểm tuổi cho Charlson
-                calcAPACHE2(); // Tự động cập nhật điểm tuổi cho APACHE II
-            }
-            if (triggerId === 'v-gcs' || triggerId === 'v-map' || triggerId === 'l-pf' || triggerId === 'l-creat') {
-                calcSOFA();
-                calcAPACHE2();
-            }
-            executeCalculations();
-        }
-
-        // THUẬT TOÁN TÍNH ĐIỂM SOFA TỪ CHỈ SỐ THÔ
-        function calcSOFA() {
-            let pts = 0;
-            // 1. Hô hấp (PaO2/FiO2)
-            const pf = parseFloat(document.getElementById('l-pf').value);
-            const vent = document.getElementById('l-vent').value;
-            if (pf < 100 && vent === 'yes') pts += 4;
-            else if (pf < 200 && vent === 'yes') pts += 3;
-            else if (pf < 300) pts += 2;
-            else if (pf <= 400) pts += 1;
-
-            // 2. Thần kinh (GCS)
-            const gcs = parseInt(document.getElementById('v-gcs').value);
-            if (gcs < 6) pts += 4;
-            else if (gcs <= 9) pts += 3;
-            else if (gcs <= 12) pts += 2;
-            else if (gcs <= 14) pts += 1;
-
-            // 3. Tim mạch (Huyết động / Vận mạch)
-            const map = parseFloat(document.getElementById('v-map').value);
-            const vaso = document.getElementById('v-vasopressor').value;
-            if (vaso === 'nor_high') pts += 4;
-            else if (vaso === 'nor01') pts += 3;
-            else if (vaso === 'dopa5') pts += 2;
-            else if (map < 70 || vaso === 'map65') pts += 1;
-
-            // 4. Thận (Creatinine)
-            const creat = parseFloat(document.getElementById('l-creat').value);
-            if (creat > 440) pts += 4;
-            else if (creat >= 300) pts += 3;
-            else if (creat >= 171) pts += 2;
-            else if (creat >= 110) pts += 1;
-
-            sofaScore = pts;
-            document.getElementById('sofa-badge').innerText = sofaScore + "đ";
-        }
-
-        // THUẬT TOÁN TÍNH ĐIỂM APACHE II TỪ CHỈ SỐ THÔ
-        function calcAPACHE2() {
-            let pts = 0;
-            
-            // Điểm Tuổi
-            const age = parseInt(document.getElementById('p-age').value);
-            if (age >= 75) pts += 6;
-            else if (age >= 65) pts += 5;
-            else if (age >= 55) pts += 3;
-            else if (age >= 45) pts += 2;
-
-            // Điểm Huyết áp trung bình (MAP)
-            const map = parseFloat(document.getElementById('v-map').value);
-            if (map >= 160 || map <= 49) pts += 4;
-            else if ((map >= 130 && map <= 159) || (map >= 50 && map <= 59)) pts += 3;
-            else if (map >= 110 && map <= 129) pts += 2;
-            else if ((map >= 70 && map <= 109)) pts += 0;
-
-            // Điểm Glasgow (15 - Hiện tại)
-            const gcs = parseInt(document.getElementById('v-gcs').value);
-            pts += (15 - gcs);
-
-            // Điểm Thận (Creatinine) - Tăng gấp đôi nếu suy thận cấp
-            const creat = parseFloat(document.getElementById('l-creat').value);
-            let creat_mgdl = creat / 88.4; // Đổi đơn vị sang mg/dL cho chuẩn công thức APACHE
-            if (creat_mgdl >= 3.5) pts += 4;
-            else if ((creat_mgdl >= 2.0 && creat_mgdl <= 3.4)) pts += 3;
-            else if (creat_mgdl >= 1.5 && creat_mgdl <= 1.9) pts += 2;
-            else if (creat_mgdl >= 0.6 && creat_mgdl <= 1.4) pts += 0;
-            else if (creat_mgdl < 0.6) pts += 2;
-
-            // Cộng điểm suy tạng mạn tính nền
-            pts += parseInt(document.getElementById('l-chronic').value);
-
-            apache2Score = pts;
-            document.getElementById('apache2-badge').innerText = apache2Score + "đ";
-        }
-
-        // THUẬT TOÁN TÍNH ĐIỂM SỨC KHỎE ĐỒNG MẮC CHARLSON (CCI)
-        function calcCCI() {
-            let pts = 0;
-            // Tính điểm dựa trên tuổi nền
-            const age = parseInt(document.getElementById('p-age').value);
-            if (age >= 80) pts += 4;
-            else if (age >= 70) pts += 3;
-            else if (age >= 60) pts += 2;
-            else if (age >= 50) pts += 1;
-
-            // Cộng dồn các checkbox bệnh nền lý thuyết
-            document.querySelectorAll('.cci-chk:checked').forEach(chk => {
-                pts += parseInt(chk.value);
-            });
-            cciScore = pts;
-            document.getElementById('cci-age-badge').innerText = cciScore;
-        }
-
-        // THUẬT TOÁN TÍNH ĐỐI CHIẾU SONG SONG BARTHEL INDEX & ADL KATZ
-        function calcBarthelAndADL() {
-            const eat = parseInt(document.getElementById('b-eat').value);
-            const bath = parseInt(document.getElementById('b-bath').value);
-            const groom = parseInt(document.getElementById('b-groom').value);
-            const dress = parseInt(document.getElementById('b-dress').value);
-            const bowel = parseInt(document.getElementById('b-bowel').value);
-            const bladder = parseInt(document.getElementById('b-bladder').value);
-            const transfer = parseInt(document.getElementById('b-transfer').value);
-            const walk = parseInt(document.getElementById('b-walk').value);
-
-            barthelScore = eat + bath + groom + dress + bowel + bladder + transfer + walk;
-            document.getElementById('barthel-badge').innerText = barthelScore;
-
-            // Áp quy đổi tự động sang thang điểm ADL (Katz) 6 điểm
-            let adl = 0;
-            if (eat === 10) adl++;
-            if (bath === 5) adl++;
-            if (dress === 10) adl++;
-            if (bladder === 10) adl++;
-            if (transfer === 15) adl++;
-            if (walk === 15 || walk === 10) adl++; // Di chuyển độc lập/ít trợ giúp
-            
-            adlScore = adl;
-            document.getElementById('adl-badge').innerText = adlScore;
-
-            // ĐỒNG BỘ NGƯỢC SANG CÂY CFS NẾU BÁC SĨ CHƯA BẤM CÂY LOGIC
-            if (bath === 0 && calculatedCFS === null) {
-                // Tự động định hướng thuật toán CFS sang nhóm suy nhược vừa trở lên (>= CFS 6)
-            }
-        }
-
-        // Điều phối thực thi chuỗi thuật toán
-        function executeCalculations() {
-            calcSOFA();
-            calcAPACHE2();
-            calcCCI();
-            calcBarthelAndADL();
-        }
-
-        // Cấu trúc logic cây CFS (Kế thừa từ phiên bản trước)
         const cfsTree = {
             start: { q: "Bệnh nhân có tiên lượng tử vong trong vòng 6 tháng tới do bệnh lý giai đoạn cuối không?", opts: [{t:"Có (Giai đoạn cuối)", n:"res_9"}, {t:"Không", n:"q1"}] },
-            q1: { q: "Có gặp khó khăn/cần người hỗ trợ công việc sinh hoạt hàng ngày (IADL: Nấu ăn, dọn dẹp, mua sắm...) không?", opts: [{t:"Có phụ thuộc IADL", n:"q1_1"}, {t:"Không phụ thuộc", n:"q2"}] },
+            q1: { q: "Có gặp khó khăn/cần người hỗ trợ công việc sinh hoạt hàng ngày (IADL: Nấu ăn, dọn dẹp...) không?", opts: [{t:"Có phụ thuộc IADL", n:"q1_1"}, {t:"Không phụ thuộc", n:"q2"}] },
             q1_1: { q: "Khảo sát mức độ phụ thuộc sinh hoạt cá nhân cơ bản (ADL):", opts: [{t:"Tự tắm rửa, mặc đồ độc lập", n:"res_5"}, {t:"Cần trợ giúp ít/nhắc nhở tắm rửa, mặc quần áo", n:"res_6"}, {t:"Phụ thuộc hoàn toàn mọi sinh hoạt cá nhân", n:"res_7"}] },
             q2: { q: "Bệnh nhân có thể tự di chuyển, đi bộ bình thường không?", opts: [{t:"Có (Đi bộ tốt)", n:"q3"}, {t:"Không (Hạn chế đi lại)", n:"q2_1"}] },
             q2_1: { q: "Thường xuyên mệt mỏi mạn tính, cảm giác 'chậm lại' rõ rệt hoặc giới hạn thể chất nặng?", opts: [{t:"Có triệu chứng", n:"res_4"}, {t:"Không", n:"res_3"}] },
@@ -523,99 +330,188 @@
         };
         const cfsLabels = { 1:"Mức 1 - Rất khỏe mạnh", 2:"Mức 2 - Khỏe mạnh", 3:"Mức 3 - Quản lý tốt", 4:"Mức 4 - Dễ bị tổn thương", 5:"Mức 5 - Suy nhược nhẹ", 6:"Mức 6 - Suy nhược vừa", 7:"Mức 7 - Suy nhược nặng", 9:"Mức 9 - Giai đoạn cuối" };
 
+        let cfsHistory = []; let cfsCurrent = 'start'; let calculatedCFS = null;
+        let scoreNEWS2 = 0; let scoreSOFA = 0; let scoreAPACHE2 = 0; let scoreAPACHE4 = 0;
+        let scoreCCI = 0; let scoreBarthel = 100; let scoreADL = 6;
+        let sumMMSE = 30; let sumMoCA = 30; let sumMiniCog = 5;
+
+        // TÍNH ĐIỂM NHẬN THỨC BÓC TÁCH CHI TIẾT
+        function sumCognitive() {
+            sumMMSE = parseInt(document.getElementById('m-mmse-ori').value)+parseInt(document.getElementById('m-mmse-reg').value)+parseInt(document.getElementById('m-mmse-att').value)+parseInt(document.getElementById('m-mmse-rec').value)+parseInt(document.getElementById('m-mmse-lang').value);
+            document.getElementById('lbl-mmse-sum').innerText = sumMMSE;
+
+            sumMoCA = parseInt(document.getElementById('m-moca-vis').value)+parseInt(document.getElementById('m-moca-nam').value)+parseInt(document.getElementById('m-moca-att').value)+parseInt(document.getElementById('m-moca-lang').value)+parseInt(document.getElementById('m-moca-abs').value)+parseInt(document.getElementById('m-moca-rec').value)+parseInt(document.getElementById('m-moca-ori').value);
+            document.getElementById('lbl-moca-sum').innerText = sumMoCA;
+
+            sumMiniCog = parseInt(document.getElementById('m-cog-words').value) + parseInt(document.getElementById('m-cog-clock').value);
+            document.getElementById('lbl-minicog-sum').innerText = sumMiniCog;
+        }
+
+        // CHUỖI LIÊN THÔNG TOÀN DIỆN THUẬT TOÁN (CORE CDSS ENGINE)
+        function syncCalculations() {
+            const age = parseInt(document.getElementById('p-age').value);
+            const temp = parseFloat(document.getElementById('v-temp').value);
+            const sbp = parseInt(document.getElementById('v-sbp').value);
+            const map = parseFloat(document.getElementById('v-map').value);
+            const hr = parseInt(document.getElementById('v-hr').value);
+            const rr = parseInt(document.getElementById('v-rr').value);
+            const gcs = parseInt(document.getElementById('v-gcs').value);
+            const spo2 = parseInt(document.getElementById('v-spo2').value);
+            const scaleType = document.getElementById('v-news-scale').value;
+            const oxy = document.getElementById('v-oxy-support').value;
+            const vaso = document.getElementById('v-vaso').value;
+            const pf = parseFloat(document.getElementById('l-pf').value);
+            const urine = parseFloat(document.getElementById('l-urine').value);
+            const creat = parseFloat(document.getElementById('l-creat').value);
+            const plt = parseFloat(document.getElementById('l-plt').value);
+            const bili = parseFloat(document.getElementById('l-bili').value);
+            const ph = parseFloat(document.getElementById('l-ph').value);
+            const na = parseFloat(document.getElementById('l-na').value);
+            const k = parseFloat(document.getElementById('l-k').value);
+            const hct = parseFloat(document.getElementById('l-hct').value);
+            const wbc = parseFloat(document.getElementById('l-wbc').value);
+            const bun = parseFloat(document.getElementById('l-bun').value);
+
+            // 1. THUẬT TOÁN ĐIỂM NEWS2 TỰ ĐỘNG
+            let n2 = 0;
+            if (rr >= 25 || rr <= 8) n2 += 3; else if (rr >= 21) n2 += 2; else if (rr >= 9 && rr <= 11) n2 += 1;
+            if (oxy === 'yes') n2 += 2;
+            if (temp >= 39.1 || temp <= 35.0) n2 += 3; else if (temp <= 36.0) n2 += 1; else if (temp >= 38.1) n2 += 1;
+            if (sbp >= 220 || sbp <= 90) n2 += 3; else if (sbp <= 100) n2 += 2; else if (sbp <= 111) n2 += 1;
+            if (hr >= 131 || hr <= 40) n2 += 3; else if (hr >= 111) n2 += 2; else if (hr >= 91 || (hr >= 41 && hr <= 50)) n2 += 1;
+            if (gcs < 15) n2 += 3; // Thay đổi tri giác cấp tính
+            if (scaleType === '1') {
+                if (spo2 <= 91) n2 += 3; else if (spo2 <= 93) n2 += 2; else if (spo2 <= 95) n2 += 1;
+            } else {
+                if (spo2 <= 83 || (spo2 >= 97 && oxy === 'yes')) n2 += 3; else if (spo2 <= 85) n2 += 2; else if (spo2 <= 87) n2 += 1;
+            }
+            scoreNEWS2 = n2; document.getElementById('lbl-news2').innerText = scoreNEWS2 + "đ";
+
+            // 2. THUẬT TOÁN ĐIỂM SOFA TỰ ĐỘNG
+            let sf = 0;
+            if (pf < 100 && oxy === 'yes') sf += 4; else if (pf < 200 && oxy === 'yes') sf += 3; else if (pf < 300) sf += 2; else if (pf <= 400) sf += 1;
+            if (plt < 20) sf += 4; else if (plt < 50) sf += 3; else if (plt < 100) sf += 2; else if (plt < 150) sf += 1;
+            if (bili > 204) sf += 4; else if (bili >= 102) sf += 3; else if (bili >= 33) sf += 2; else if (bili >= 20) sf += 1;
+            if (vaso === '4') sf += 4; else if (vaso === '3') sf += 3; else if (vaso === '2') sf += 2; else if (map < 70 || vaso === '1') sf += 1;
+            if (gcs < 6) sf += 4; else if (gcs <= 9) sf += 3; else if (gcs <= 12) sf += 2; else if (gcs <= 14) sf += 1;
+            if (creat > 440 || urine < 200) sf += 4; else if ((creat >= 300 && creat <= 440) || urine < 500) sf += 3; else if (creat >= 171) sf += 2; else if (creat >= 110) sf += 1;
+            scoreSOFA = sf; document.getElementById('lbl-sofa').innerText = scoreSOFA + "đ";
+
+            // 3. THUẬT TOÁN ĐIỂM APACHE II TỰ ĐỘNG
+            let a2 = 0;
+            if (age >= 75) a2 += 6; else if (age >= 65) a2 += 5; else if (age >= 55) a2 += 3; else if (age >= 45) a2 += 2;
+            if (temp >= 41 || temp <= 29.9) a2 += 4; else if (temp >= 39 || temp <= 31.9) a2 += 3; else if (temp <= 34.9) a2 += 2; else if (temp >= 38.5 || (temp >= 32 && temp <= 35.9)) a2 += 1;
+            if (map >= 160 || map <= 49) a2 += 4; else if (map >= 130 || (map >= 50 && map <= 59)) a2 += 3; else if (map >= 110 || (map >= 60 && map <= 69)) a2 += 2;
+            if (hr >= 180 || hr <= 39) a2 += 4; else if (hr >= 140 || (hr >= 40 && hr <= 54)) a2 += 3; else if (hr >= 110 || (hr >= 55 && hr <= 69)) a2 += 2;
+            if (rr >= 50 || rr <= 5) a2 += 4; else if (rr >= 35 || (rr >= 6 && rr <= 9)) a2 += 3; else if (rr >= 25 || (rr >= 10 && rr <= 11)) a2 += 1;
+            a2 += (15 - gcs);
+            if (ph >= 7.7 || ph < 7.15) a2 += 4; else if (ph >= 7.6 || (ph >= 7.15 && ph <= 7.24)) a2 += 3; else if (ph >= 7.5 || (ph >= 7.25 && ph <= 7.32)) a2 += 1;
+            if (na >= 180 || na <= 119) a2 += 4; else if (na >= 160 || (na >= 120 && na <= 129)) a2 += 3; else if (na >= 155 || (na >= 130 && na <= 139)) a2 += 2; else if (na >= 150) a2 += 1;
+            if (k >= 7 || k < 2.5) a2 += 4; else if (k >= 6 || (k >= 2.5 && k <= 2.9)) a2 += 3; else if (k >= 3.5 && k <= 5.4) a2 += 0; else a2 += 1;
+            let cr_mg = creat / 88.4; if (cr_mg >= 3.5) a2 += 4; else if (cr_mg >= 2) a2 += 3; else if (cr_mg >= 1.5) a2 += 2; else if (cr_mg < 0.6) a2 += 2;
+            if (hct >= 60 || hct < 20) a2 += 4; else if (hct >= 50 || (hct >= 20 && hct <= 29.9)) a2 += 2; else if (hct >= 46) a2 += 1;
+            if (wbc >= 40 || wbc < 1) a2 += 4; else if (wbc >= 20 || (wbc >= 1 && wbc <= 2.9)) a2 += 2; else if (wbc >= 15) a2 += 1;
+            a2 += parseInt(document.getElementById('l-chronic').value);
+            scoreAPACHE2 = a2; document.getElementById('lbl-apache2').innerText = scoreAPACHE2 + "đ";
+
+            // 4. THUẬT TOÁN ĐIỂM APACHE IV (LÂM SÀNG SƠ BỘ)
+            let a4 = 0;
+            if (age >= 85) a4 += 24; else if (age >= 80) a4 += 19; else if (age >= 70) a4 += 11; else if (age >= 60) a4 += 7;
+            if (gcs < 8) a4 += 15; else if (gcs <= 11) a4 += 8;
+            if (map < 50) a4 += 10; else if (map > 130) a4 += 4;
+            if (rr > 40) a4 += 12; else if (rr < 10) a4 += 6;
+            if (bun > 15) a4 += 9;
+            scoreAPACHE4 = a4; document.getElementById('lbl-apache4').innerText = scoreAPACHE4 + "đ (Lâm sàng)";
+
+            // 5. THUẬT TOÁN PHÂN HỆ LÃO KHOA (BARTHEL, ADL, CCI)
+            const eat = parseInt(document.getElementById('b-eat').value); const bath = parseInt(document.getElementById('b-bath').value);
+            const groom = parseInt(document.getElementById('b-groom').value); const dress = parseInt(document.getElementById('b-dress').value);
+            const bowel = parseInt(document.getElementById('b-bowel').value); const bladder = parseInt(document.getElementById('b-bladder').value);
+            const transfer = parseInt(document.getElementById('b-transfer').value); const walk = parseInt(document.getElementById('b-walk').value);
+            scoreBarthel = eat + bath + groom + dress + bowel + bladder + transfer + walk;
+            document.getElementById('lbl-barthel').innerText = scoreBarthel + "đ";
+
+            let adl = 0; if (eat === 10) adl++; if (bath === 5) adl++; if (dress === 10) adl++; if (bladder === 10) adl++; if (transfer === 15) adl++; if (walk === 15) adl++;
+            scoreADL = adl; document.getElementById('lbl-adl').innerText = scoreADL + "đ";
+
+            let cc = 0; if (age >= 80) cc += 4; else if (age >= 70) cc += 3; else if (age >= 60) cc += 2;
+            document.querySelectorAll('.cci-chk:checked').forEach(c => cc += parseInt(c.value));
+            scoreCCI = cc; document.getElementById('cci-age-badge').innerText = scoreCCI;
+
+            sumCognitive();
+        }
+
+        // TẠO FILE BÁO CÁO TÓM TẮT EMR
+        function generateReport() {
+            syncCalculations();
+            const id = document.getElementById('p-id').value || "N/A";
+            const name = document.getElementById('p-name').value || "Chưa rõ tên";
+            const age = document.getElementById('p-age').value;
+            const gender = document.getElementById('p-gender').value;
+            const cfsTxt = calculatedCFS ? `CFS ${calculatedCFS} (${cfsLabels[calculatedCFS]})` : "Chưa chấm";
+
+            let r = `Bệnh nhân ${gender.toLowerCase()}, ${age} tuổi (Mã bệnh án/Mã NC: ${id}). Nhập viện khoa Hồi sức tích cực (ICU).\n`;
+            r += `1. SUY NHƯỢC NỀN (Baseline): Chấm qua cây logic phân loại đạt: ${cfsTxt}.\n`;
+            r += `2. CẤP TÍNH ICU & SÀNG LỌC SỚM:\n`;
+            r += `   - Điểm Cảnh báo Sớm Quốc gia NEWS2: ${scoreNEWS2} điểm.\n`;
+            r += `   - Điểm Suy đa tạng SOFA (Từ chỉ số thô): ${scoreSOFA} điểm.\n`;
+            r += `   - Điểm APACHE II: ${scoreAPACHE2} điểm. | Điểm sơ bộ APACHE IV (Lâm sàng): ${scoreAPACHE4} điểm.\n`;
+            r += `3. PHÂN HỆ LÃO KHOA & ĐỒNG MẮC:\n`;
+            r += `   - Độc lập chức năng Barthel Index: ${scoreBarthel}/100đ. | Thang điểm hoạt động cơ bản ADL (Katz): ${scoreADL}/6đ.\n`;
+            r += `   - Chỉ số bệnh đồng mắc Charlson (CCI - Đã hiệu chỉnh tuổi): ${scoreCCI} điểm.\n`;
+            r += `4. CHI TIẾT CHỨC NĂNG NHẬN THỨC BÓC TÁCH:\n`;
+            r += `   - Điểm MMSE: ${sumMMSE}/30đ (Định hướng: ${document.getElementById('m-mmse-ori').value}đ, Ghi nhớ: ${document.getElementById('m-mmse-reg').value}đ, Tính toán: ${document.getElementById('m-mmse-att').value}đ, Gợi nhớ: ${document.getElementById('m-mmse-rec').value}đ, Ngôn ngữ: ${document.getElementById('m-mmse-lang').value}đ).\n`;
+            r += `   - Điểm MoCA: ${sumMoCA}/30đ (Thị giác: ${document.getElementById('m-moca-vis').value}đ, Gọi tên: ${document.getElementById('m-moca-nam').value}đ, Chú ý: ${document.getElementById('m-moca-att').value}đ, Ngôn ngữ: ${document.getElementById('m-moca-lang').value}đ, Trừu tượng: ${document.getElementById('m-moca-abs').value}đ, Trì hoãn: ${document.getElementById('m-moca-rec').value}đ, Định hướng: ${document.getElementById('m-moca-ori').value}đ).\n`;
+            r += `   - Điểm Mini-COG: ${sumMiniCog}/5đ (Nhớ từ: ${document.getElementById('m-cog-words').value}đ, Vẽ đồng hồ: ${document.getElementById('m-cog-clock').value}đ).`;
+
+            document.getElementById('emr-summary').value = r;
+
+            // Render Cảnh báo Lâm sàng
+            const box = document.getElementById('clinical-alerts'); box.innerHTML = '';
+            if (scoreNEWS2 >= 5) box.innerHTML += `<div class="bg-red-50 text-red-900 border-l-4 border-red-600 p-2 text-[11px] font-bold">⚠️ ĐIỂM NEWS2 NGUY CƠ CAO (&ge; 5): Dấu hiệu sinh tồn đe dọa suy sụp cấp tính. Khuyến cáo tăng tần suất theo dõi và báo cáo bác sĩ trưởng ca cấp cứu.</div>`;
+            if (scoreSOFA >= 3) box.innerHTML += `<div class="bg-amber-50 text-amber-900 border-l-4 border-amber-600 p-2 text-[11px] font-bold">⚡ ĐIỂM SOFA CẤP TÍNH CAO: Nguy cơ nhiễm trùng huyết/suy đa tạng nặng. Cần tối ưu hóa phác đồ kháng sinh và dịch truyền.</div>`;
+        }
+
+        // CÁC HÀM PHỤ TRỢ (KẾ THỪA)
         function renderCFSTree() {
             const container = document.getElementById('cfs-tree-container');
             const backBtn = document.getElementById('cfs-back');
             backBtn.style.display = cfsHistory.length > 0 ? 'inline-block' : 'none';
-
             if (cfsCurrent.startsWith('res_')) {
                 calculatedCFS = cfsCurrent.split('_')[1];
-                container.innerHTML = `
-                    <div class="text-center py-2">
-                        <div class="inline-block bg-blue-700 text-white text-2xl font-black px-5 py-2 rounded-full mb-1">CFS ${calculatedCFS}</div>
-                        <h4 class="text-md font-bold text-slate-900">${cfsLabels[calculatedCFS]}</h4>
-                        <button onclick="resetCFS()" class="mt-2 px-3 py-1 text-xs bg-slate-200 rounded font-bold">Chấm lại</button>
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-2"><div class="inline-block bg-blue-700 text-white text-xl font-black px-4 py-1.5 rounded-full mb-1">CFS ${calculatedCFS}</div><h4 class="text-xs font-bold text-slate-900">${cfsLabels[calculatedCFS]}</h4><button onclick="resetCFS()" class="mt-2 px-3 py-1 text-[10px] bg-slate-200 rounded font-bold">Chấm lại</button></div>`;
                 return;
             }
-            const node = cfsTree[cfsCurrent];
-            let optsHtml = '';
-            node.opts.forEach(o => {
-                optsHtml += `<button onclick="selectCFSOpt('${o.n}')" class="w-full text-left bg-white border p-3 rounded-lg hover:bg-blue-50 transition-all font-semibold flex justify-between text-xs shadow-xs">${o.t} <span>➔</span></button>`;
-            });
-            container.innerHTML = `<div class="space-y-3"><h4 class="font-bold text-slate-900 text-xs bg-white p-3 rounded border-l-4 border-blue-700">${node.q}</h4><div class="space-y-2">${optsHtml}</div></div>`;
+            const node = cfsTree[cfsCurrent]; let optsHtml = '';
+            node.opts.forEach(o => { optsHtml += `<button onclick="selectCFSOpt('${o.n}')" class="w-full text-left bg-white border p-3 rounded-lg hover:bg-blue-50 transition-all font-semibold flex justify-between text-xs cursor-pointer">${o.t} <span>➔</span></button>`; });
+            container.innerHTML = `<div class="space-y-3"><h4 class="font-bold text-slate-900 text-xs bg-white p-3 rounded border-l-4 border-blue-700 shadow-sm">${node.q}</h4><div class="space-y-2">${optsHtml}</div></div>`;
         }
         function selectCFSOpt(next) { cfsHistory.push(cfsCurrent); cfsCurrent = next; renderCFSTree(); }
         function cfsGoBack() { if(cfsHistory.length > 0) { cfsCurrent = cfsHistory.pop(); renderCFSTree(); } }
         function resetCFS() { cfsHistory = []; cfsCurrent = 'start'; calculatedCFS = null; renderCFSTree(); }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('border-blue-700', 'text-blue-700'); el.classList.add('border-transparent', 'text-slate-500'); });
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById('btn-' + tabId).classList.remove('border-transparent', 'text-slate-500');
-            document.getElementById('btn-' + tabId).classList.add('border-blue-700', 'text-blue-700');
-            if(tabId === 'tab-report') generateReport();
-        }
-
-        // TỰ ĐỘNG XUẤT TEXT BÁO CÁO TÓM TẮT LÂM SÀNG CHO EMR
-        function generateReport() {
-            executeCalculations();
-            const name = document.getElementById('p-name').value || "Chưa rõ tên";
-            const age = document.getElementById('p-age').value;
-            const gender = document.getElementById('p-gender').value;
-            const id = document.getElementById('p-id').value || "N/A";
-            const cam = document.getElementById('p-cam').value;
-            const vas = document.getElementById('p-vas').value;
-
-            const cfsTxt = calculatedCFS ? `CFS ${calculatedCFS} (${cfsLabels[calculatedCFS]})` : "Chưa đánh giá";
-
-            let txt = `Bệnh nhân ${gender.toLowerCase()}, ${age} tuổi (Mã số: ${id}), điều trị ICU bệnh viện Lão khoa trung ương.\n`;
-            txt += `1. ĐỒNG SUY NHƯỢC NỀN: Điểm CFS nền (2 tuần trước viện) xác định qua cây logic đạt: ${cfsTxt}.\n`;
-            txt += `2. CẤP TÍNH ICU: Điểm SOFA tổng hợp từ chỉ số thô: ${sofaScore} điểm. Điểm APACHE II: ${apache2Score} điểm. Thang đau VAS: ${vas}/10đ.\n`;
-            txt += `3. PHÂN HỆ LÃO KHOA: Chỉ số Charlson (CCI) hiệu chỉnh theo tuổi: ${cciScore} điểm. Mức độ độc lập chức năng Barthel Index: ${barthelScore}/100đ, Thang điểm ADL (Katz): ${adlScore}/6đ.\n`;
-            txt += `4. TÂM THẦN NHẬN THỨC: Trạng thái Mê sảng (CAM): ${cam}. Điểm số nhận thức mạn tính: MMSE: ${document.getElementById('sc-mmse').value}/30đ, MoCA: ${document.getElementById('sc-moca').value}/30đ, Mini-COG: ${document.getElementById('sc-minicog').value}/5đ.`;
-
-            document.getElementById('emr-summary').value = txt;
-
-            // Xử lý khối cảnh báo
-            const alertBox = document.getElementById('clinical-alerts');
-            alertBox.innerHTML = '';
-            if (calculatedCFS >= 5) {
-                alertBox.innerHTML += `<div class="bg-red-50 text-red-900 border-l-4 border-red-600 p-2.5 rounded text-xs font-bold">⚠️ NGƯƠI BỆNH CÓ SUY NHƯỢC NỀN (CFS &ge; 5): Nguy cơ cao lệ thuộc máy thở mạn tính và biến cố bất lợi tăng gấp 3 lần tại ICU.</div>`;
-            }
-            if (sofaScore >= 3) {
-                alertBox.innerHTML += `<div class="bg-amber-50 text-amber-900 border-l-4 border-amber-600 p-2.5 rounded text-xs font-bold">⚡ NGUY CƠ NHIỄM TRÙNG HUYẾT NẶNG / SUY TẠNG TIẾN TRIỂN (SOFA = ${sofaScore}): Cần theo dõi sát bilan dịch và áp lực tưới máu tạng.</div>`;
-            }
-        }
-
-        function copyToClipboard() {
-            document.getElementById('emr-summary').select();
-            document.execCommand("copy");
-            alert("Đã sao chép!");
-        }
+        function switchTab(id) { document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(e => { e.classList.remove('border-blue-700', 'text-blue-700'); e.classList.add('border-transparent', 'text-slate-500'); }); document.getElementById(id).classList.add('active'); document.getElementById('btn-' + id).classList.remove('border-transparent', 'text-slate-500'); document.getElementById('btn-' + id).classList.add('border-blue-700', 'text-blue-700'); if(id === 'tab-report') generateReport(); }
+        function copyToClipboard() { document.getElementById('emr-summary').select(); document.execCommand("copy"); alert("Đã copy văn bản tóm tắt!"); }
 
         function exportToExcel() {
             const data = [{
-                "Mã BN": document.getElementById('p-id').value, "Họ Tên": document.getElementById('p-name').value, "Tuổi": parseInt(document.getElementById('p-age').value), "Giới tính": document.getElementById('p-gender').value,
-                "CFS Nền": calculatedCFS ? parseInt(calculatedCFS) : "N/A", "SOFA": sofaScore, "APACHE II": apache2Score, "Charlson Index": cciScore, "Barthel Index": barthelScore, "ADL (Katz)": adlScore, "Mê sảng (CAM)": document.getElementById('p-cam').value, "Thời gian ghi nhận": new Date().toLocaleString('vi-VN')
+                "Mã BN": document.getElementById('p-id').value, "Họ Tên": document.getElementById('p-name').value, "Tuổi": parseInt(document.getElementById('p-age').value),
+                "CFS": calculatedCFS ? parseInt(calculatedCFS) : "N/A", "NEWS2": scoreNEWS2, "SOFA": scoreSOFA, "APACHE II": scoreAPACHE2, "APACHE IV Lâm Sàng": scoreAPACHE4,
+                "Barthel": scoreBarthel, "ADL (Katz)": scoreADL, "Charlson (CCI)": scoreCCI, "MMSE Tổng": sumMMSE, "MoCA Tổng": sumMoCA, "Mini-COG": sumMiniCog, "Thời gian": new Date().toLocaleString('vi-VN')
             }];
-            const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "ICU_Database");
-            XLSX.writeFile(workbook, `Research_Data_BN_${document.getElementById('p-id').value || 'Unknow'}.xlsx`);
+            const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "ICU_Geriatrics_Database");
+            XLSX.writeFile(wb, `CDSS_Data_BN_${document.getElementById('p-id').value || 'Unknow'}.xlsx`);
         }
 
         function exportToPDF() {
             const summaryHtml = document.getElementById('emr-summary').value.replace(/\n/g, '<br>');
-            document.getElementById('pdf-content').innerHTML = `<div class="border p-3 bg-slate-50 font-mono text-xs">${summaryHtml}</div>`;
+            document.getElementById('pdf-content').innerHTML = `<div class="border p-3 bg-slate-50 font-mono text-[10px] leading-relaxed">${summaryHtml}</div>`;
             const element = document.getElementById('pdf-template'); element.classList.remove('hidden');
-            html2pdf().set({ margin: 10, filename: `ICU-Report-${document.getElementById('p-id').value || 'BN'}.pdf`, html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'portrait' } }).from(element).save().then(() => element.classList.add('hidden'));
+            html2pdf().set({ margin: 10, filename: `ICU-CDSS-Report-${document.getElementById('p-id').value || 'BN'}.pdf`, html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'portrait' } }).from(element).save().then(() => element.classList.add('hidden'));
         }
 
-        // Đăng ký kích hoạt ban đầu
+        // Khởi tạo ban đầu
         renderCFSTree();
-        executeCalculations();
-        document.querySelectorAll('.cci-chk').forEach(c => c.addEventListener('change', calcCCI));
+        syncCalculations();
     </script>
 </body>
 </html>
